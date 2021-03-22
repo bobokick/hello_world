@@ -7,34 +7,6 @@
 #include <deque>
 using namespace std;
 
-/* bool compare_equal(vector<string> &list, vector<string> &list2)
-{
-    map<string, int> dict;
-    map<string, int> dict2;
-    vector<string>::size_type list_size = list.size();
-    vector<string>::size_type list2_size = list2.size();
-    if (list_size != list2_size)
-        return false;
-    for (vector<string>::size_type i = 0; i < list_size || i < list2_size; ++i)
-    {
-        if (i < list_size)
-            dict[list[i]] += 1;
-        if (i < list2_size)
-            dict2[list2[i]] += 1;
-    }
-    for (auto val: list)
-    {
-        if (dict2.count(val) != 0)
-        {
-            if (dict[val] != dict2[val])
-                return false;
-        }
-        else
-            return false;
-    }
-    return true;
-} */
-
 // 最坏时间复杂度: O(max(V, E, LV, LE)) (V, E, LV, LE分别是图的顶点数，边数, 约束顶点数，约束边数)
 // 最坏空间复杂度: O(max(v)!) (v是图中顶点的最大度数)
 // 使用广度优先搜索方法实现对给定约束条件下的最短路径（遍历点数最少）搜索，适用于混合图（包括环和多重边），不适用于加权图
@@ -125,6 +97,34 @@ friend class Test_case;
         }
     };
     vector<Vertex_info> vers_list;  // 该图的顶点列表
+    // 判断两列表是否相等
+    static bool compare_equal(vector<string> &list, vector<string> &list2)
+    {
+        map<string, int> dict;
+        map<string, int> dict2;
+        vector<string>::size_type list_size = list.size();
+        vector<string>::size_type list2_size = list2.size();
+        if (list_size != list2_size)
+            return false;
+        for (vector<string>::size_type i = 0; i < list_size || i < list2_size; ++i)
+        {
+            if (i < list_size)
+                dict[list[i]] += 1;
+            if (i < list2_size)
+                dict2[list2[i]] += 1;
+        }
+        for (auto val: list)
+        {
+            if (dict2.count(val) != 0)
+            {
+                if (dict[val] != dict2[val])
+                    return false;
+            }
+            else
+                return false;
+        }
+        return true;
+    }
     // 判断两列表之间的包含关系
     static bool contained_judge(vector<string> &list, vector<string> sublist)
     {
@@ -152,6 +152,45 @@ friend class Test_case;
                 return false;
         return true;
     }
+    // 求出两个列表的交集
+    static vector<string> intersection(vector<string> list, vector<string> list2)
+    {
+        map<string, int> dict;
+        map<string, int> dict2;
+        vector<string> temp_list{};
+        vector<string>::size_type list_size = list.size();
+        vector<string>::size_type list2_size = list2.size();
+        if (list_size == 0 && list2_size == 0)
+            return temp_list;
+        else if (list_size == 0)
+            return list2;
+        else if (list2_size == 0)
+            return list;
+        for (vector<string>::size_type i = 0; i < list_size || i < list2_size; ++i)
+        {
+            if (i < list_size)
+                dict[list[i]] += 1;
+            if (i < list2_size)
+                dict2[list2[i]] += 1;
+        }
+        for (auto val: dict)
+        {
+            unsigned size = val.second;
+            for (unsigned i = 0; i < size; ++i)
+                temp_list.push_back(val.first);
+        }
+        for (auto val: dict2)
+        {
+            unsigned size = 0;
+            if (dict.count(val.first) == 0)
+                size = val.second;
+            else if (val.second > dict[val.first])
+                size = val.second - dict[val.first];
+            for (unsigned i = 0; i < size; ++i)
+                temp_list.push_back(val.first);
+        }
+        return temp_list;
+    }
     // 判断当前路径是否符合约束条件，有严格包含判断（equal）和不严格包含判断（more and equal）
     static bool path_judge_me(string &ends, vector<string> &required_vers, vector<string> &required_edges, Path_info &temp_path)
     {
@@ -160,11 +199,14 @@ friend class Test_case;
         else
             return false;
     }
-    static bool path_judge_e(string &ends, vector<string> &required_vers, vector<string> &required_edges, Path_info &temp_path, unsigned max_amout)
+    static bool path_judge_e(string &ends, vector<string> &required_vers, vector<string> &required_edges, Path_info &temp_path, unsigned &max_amout)
     {
+        vector<string> temp1{temp_path.vertex_path};
+        temp1.push_back(ends);
+        vector<string> temp2{intersection(required_vers, {temp1[0], ends})};
         if (temp_path.end_point != ends || temp_path.vertex_path.size() != max_amout - 1 || temp_path.edge_path.size() != max_amout - 1)
             return false;
-        else if (contained_judge(temp_path.vertex_path, required_vers) && contained_judge(temp_path.edge_path, required_edges))
+        else if (contained_judge(temp1, temp2) && contained_judge(temp_path.edge_path, required_edges))
             return true;
         else
             return false;
@@ -213,8 +255,8 @@ friend class Test_case;
             }
         return path_list;
     }
-    // 求某图约束条件下的最短路径，可选择判断模式，默认不严格判断（equal or more and equal）
-    static Optimal_path find_optimal_path(string &starts, string &ends, vector<string> &required_vetex, vector<string> &required_edge, vector<Vertex_info> maps, bool strict_judge = false)
+    // 求某图约束条件下的最短路径，可选择判断模式，默认严格判断（equal）
+    static Optimal_path find_optimal_path(string &starts, string &ends, vector<string> &required_vetex, vector<string> &required_edge, vector<Vertex_info> maps, bool strict_judge = true)
     {
         deque<Path_info> queue;
         Optimal_path optimal_path{};
@@ -343,7 +385,7 @@ class Test_case
         vector<Graphs::Optimal_path> test_list;
     public:
         Case(vector<Graphs::Vertex_info> ver_list = {}): graph(ver_list) {}
-        void add_test(string starts, string ends, vector<string> required_vetex, vector<string> required_edge, bool strict_judge = false)
+        void add_test(string starts, string ends, vector<string> required_vetex, vector<string> required_edge, bool strict_judge = true)
         {
             Graphs::Optimal_path test = Graphs::find_optimal_path(starts, ends, required_vetex, required_edge, graph, strict_judge);
             test_list.push_back(test);
@@ -371,7 +413,7 @@ public:
     {
         case_list.push_back(cases);
     }
-    void add_case_test(unsigned case_index, string starts, string ends, vector<string> required_vetex = {}, vector<string> required_edge = {}, bool strict_judge = false)
+    void add_case_test(unsigned case_index, string starts, string ends, vector<string> required_vetex = {}, vector<string> required_edge = {}, bool strict_judge = true)
     {
         case_list[case_index].add_test(starts, ends, required_vetex, required_edge, strict_judge);
     }
