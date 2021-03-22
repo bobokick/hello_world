@@ -10,8 +10,8 @@
 - 图的边都有颜色信息
 ##### 从给出的图以及限定条件来看，我们可以发现以下要求
 - 路径必须要从给定的起点到给定的终点
-- 路径至少要经过特定的节点
-- 路径至少要经过给定的边
+- 路径要经过给定的节点(起点和终点也算在给定点的其中)
+- 路径要经过给定的边，不能多于也不能少于
 
 ## 思路过程
 ##### 由于本题是关于图的路径选择问题，我们就能够想到使用一些基础的图算法，如广度优先搜索算法（BFS），接下来我们就使用BFS算法来求出给定条件的最佳路径
@@ -131,6 +131,48 @@ static vector<Path_info> build_path(Vertex_info &vertex, vector<string> ver_path
             else
                 return false;
         return true;
+    }
+```
+
+```
+// 求出两个列表的交集
+    static vector<string> intersection(vector<string> list, vector<string> list2)
+    {
+        map<string, int> dict;
+        map<string, int> dict2;
+        vector<string> temp_list{};
+        vector<string>::size_type list_size = list.size();
+        vector<string>::size_type list2_size = list2.size();
+        if (list_size == 0 && list2_size == 0)
+            return temp_list;
+        else if (list_size == 0)
+            return list2;
+        else if (list2_size == 0)
+            return list;
+        for (vector<string>::size_type i = 0; i < list_size || i < list2_size; ++i)
+        {
+            if (i < list_size)
+                dict[list[i]] += 1;
+            if (i < list2_size)
+                dict2[list2[i]] += 1;
+        }
+        for (auto val: dict)
+        {
+            unsigned size = val.second;
+            for (unsigned i = 0; i < size; ++i)
+                temp_list.push_back(val.first);
+        }
+        for (auto val: dict2)
+        {
+            unsigned size = 0;
+            if (dict.count(val.first) == 0)
+                size = val.second;
+            else if (val.second > dict[val.first])
+                size = val.second - dict[val.first];
+            for (unsigned i = 0; i < size; ++i)
+                temp_list.push_back(val.first);
+        }
+        return temp_list;
     }
 ```
 
