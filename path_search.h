@@ -152,8 +152,8 @@ friend class Test_case;
                 return false;
         return true;
     }
-    // 求出两个列表的交集
-    static vector<string> intersection(vector<string> list, vector<string> list2)
+    // 求出两个列表的并集
+    static vector<string> unions(vector<string> list, vector<string> list2)
     {
         map<string, int> dict;
         map<string, int> dict2;
@@ -203,7 +203,7 @@ friend class Test_case;
     {
         vector<string> temp1{temp_path.vertex_path};
         temp1.push_back(ends);
-        vector<string> temp2{intersection(required_vers, {temp1[0], ends})};
+        vector<string> temp2{unions(required_vers, {temp1[0], ends})};
         if (temp_path.end_point != ends || temp_path.vertex_path.size() != max_amout - 1 || temp_path.edge_path.size() != max_amout - 1)
             return false;
         else if (contained_judge(temp1, temp2) && contained_judge(temp_path.edge_path, required_edges))
