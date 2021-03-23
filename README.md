@@ -135,8 +135,8 @@ static vector<Path_info> build_path(Vertex_info &vertex, vector<string> ver_path
 ```
 
 ```
-// 求出两个列表的交集
-    static vector<string> intersection(vector<string> list, vector<string> list2)
+// 求出两个列表的并集
+    static vector<string> unions(vector<string> list, vector<string> list2)
     {
         map<string, int> dict;
         map<string, int> dict2;
@@ -173,6 +173,26 @@ static vector<Path_info> build_path(Vertex_info &vertex, vector<string> ver_path
                 temp_list.push_back(val.first);
         }
         return temp_list;
+    }
+    // 判断当前路径是否符合约束条件，有严格包含判断（equal）和不严格包含判断（more and equal）
+    static bool path_judge_me(string &ends, vector<string> &required_vers, vector<string> &required_edges, Path_info &temp_path)
+    {
+        if (temp_path.end_point == ends && contained_judge(temp_path.vertex_path, required_vers) && contained_judge(temp_path.edge_path, required_edges))
+            return true;
+        else
+            return false;
+    }
+    static bool path_judge_e(string &ends, vector<string> &required_vers, vector<string> &required_edges, Path_info &temp_path, unsigned &max_amout)
+    {
+        vector<string> temp1{temp_path.vertex_path};
+        temp1.push_back(ends);
+        vector<string> temp2{unions(required_vers, {temp1[0], ends})};
+        if (temp_path.end_point != ends || temp_path.vertex_path.size() != max_amout - 1 || temp_path.edge_path.size() != max_amout - 1)
+            return false;
+        else if (contained_judge(temp1, temp2) && contained_judge(temp_path.edge_path, required_edges))
+            return true;
+        else
+            return false;
     }
 ```
 
