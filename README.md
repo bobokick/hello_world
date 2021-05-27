@@ -84,6 +84,7 @@
 
 ###### 以下是从顶点来构造路径
 ```
+// 建立从某顶点通往其所有邻居的可行路径
 static vector<Path_info> build_path(Vertex_info &vertex, vector<string> ver_path, vector<string> &edg_path)
     {
         vector<Path_info> path_list{};
@@ -227,8 +228,8 @@ static vector<Path_info> build_path(Vertex_info &vertex, vector<string> ver_path
 ##### 1.5 加上队列用来保存之前遍历的路径以便进行下一个寻找后，我们就可以构造BFS算法了
 
 ```
-// 求某图约束条件下的最短路径，可选择判断模式，默认不严格判断（equal or more and equal）
-    static Optimal_path find_optimal_path(string &starts, string &ends, vector<string> &required_vetex, vector<string> &required_edge, vector<Vertex_info> maps, bool strict_judge = false)
+// 求某图约束条件下的最短路径，可选择判断模式，默认严格判断（equal）
+    static Optimal_path find_optimal_path(string &starts, string &ends, vector<string> &required_vetex, vector<string> &required_edge, vector<Vertex_info> maps, bool strict_judge = true)
     {
         deque<Path_info> queue;
         Optimal_path optimal_path{};
@@ -297,3 +298,18 @@ static vector<Path_info> build_path(Vertex_info &vertex, vector<string> ver_path
 - 最坏时间复杂度: O(max(V, E, LV, LE)) (V, E, LV, LE分别是图的顶点数，边数, 约束顶点数，约束边数)
 - 最坏空间复杂度: O(max(v)!) (v是图中顶点的最大度数)
 - 使用广度优先搜索方法实现对给定约束条件下的最短路径（遍历点数最少）搜索，适用于混合图（包括环和多重边），不适用于加权图
+
+
+最后是每个图中的最佳路径结果：
+1. 第一张图
+    ![map1](https://user-images.githubusercontent.com/62290022/119756085-97dbad80-bed5-11eb-9309-60ab0621b2ee.jpg)
+    ![image](https://user-images.githubusercontent.com/62290022/119756281-e8530b00-bed5-11eb-80ef-891c0c5a0390.png)
+2. 第二张图
+    ![map2](https://user-images.githubusercontent.com/62290022/119756561-4aac0b80-bed6-11eb-9130-e74e5d31f672.jpg)
+    ![image](https://user-images.githubusercontent.com/62290022/119756813-9959a580-bed6-11eb-95f1-82964af31e38.png)
+    ![image](https://user-images.githubusercontent.com/62290022/119756852-a8405800-bed6-11eb-837a-5ca563af364e.png)
+3. 第二张图
+    ![map3](https://user-images.githubusercontent.com/62290022/119756909-c0b07280-bed6-11eb-884f-7fc2023dd42d.jpg)
+    ![image](https://user-images.githubusercontent.com/62290022/119756962-d6be3300-bed6-11eb-9a79-7796413edaa6.png)
+    ![image](https://user-images.githubusercontent.com/62290022/119756995-e3db2200-bed6-11eb-9c00-59751912e0ec.png)
+
